@@ -9,12 +9,12 @@
   <p><strong>目的:</strong> 3dsMAX2025以降で使用可能なセット　おまけ付き</p><br>
 
   <h2 id="Maya版 ピッカー">
-  <a href="https://github.com/cgtc11/Script_3D/tree/main/Maya">Maya版 Download</a>
+  <a href="https://github.com/cgtc11/Script_3D/tree/main/3D_Picker/Maya">Maya版 Download</a>
 　</h2>
   <p><strong>目的:</strong> Maya2025以降で使用可能なセット</p><br>
 
   <h2 id="Blender版 ピッカー">
-  <a href="https://github.com/cgtc11/Script_3D/tree/main/Blender">Blender版 Download</a>
+  <a href="https://github.com/cgtc11/Script_3D/tree/main/3D_Picker/Blender">Blender版 Download</a>
 　</h2>
   <p><strong>目的:</strong> Blender5.1以降で使用可能なセット</p><br>
 <br>
