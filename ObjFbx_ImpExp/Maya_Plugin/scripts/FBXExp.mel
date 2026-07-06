@@ -1,0 +1,44 @@
+// FBXを書き出すMELスクリプト（選択したオブジェクトのみ、C:/Temp/ImpExp.iniの設定に従う）
+
+string $folder = "C:/Temp/";
+string $fbxName = "model.fbx";
+string $iniPath = "C:/Temp/ImpExp.ini";
+
+if (`filetest -r $iniPath`) {
+    int $fileId = `fopen $iniPath "r"`;
+    string $line = `fgetline $fileId`;
+    while (size($line) > 0) {
+        $line = substituteAllString($line, "\r", "");
+        $line = substituteAllString($line, "\n", "");
+
+        if (`match "^[ \t]*folder[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $folder = $valTokens[0];
+            }
+        } else if (`match "^[ \t]*fbx_name[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $fbxName = $valTokens[0];
+            }
+        }
+
+        $line = `fgetline $fileId`;
+    }
+    fclose $fileId;
+}
+
+string $fbxPath = $folder + $fbxName;
+
+string $selection[] = `ls -selection`;
+if (size($selection) > 0) {
+    file -force -options "v=0;" -typ "FBX export" -pr -es $fbxPath;
+} else {
+    warning "No objects selected.";
+}

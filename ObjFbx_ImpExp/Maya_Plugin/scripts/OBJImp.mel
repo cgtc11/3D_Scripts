@@ -1,0 +1,39 @@
+// OBJを読み込むMELスクリプト（C:/Temp/ImpExp.iniの設定に従う）
+
+string $folder = "C:/Temp/";
+string $objName = "model.obj";
+string $iniPath = "C:/Temp/ImpExp.ini";
+
+if (`filetest -r $iniPath`) {
+    int $fileId = `fopen $iniPath "r"`;
+    string $line = `fgetline $fileId`;
+    while (size($line) > 0) {
+        $line = substituteAllString($line, "\r", "");
+        $line = substituteAllString($line, "\n", "");
+
+        if (`match "^[ \t]*folder[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $folder = $valTokens[0];
+            }
+        } else if (`match "^[ \t]*obj_name[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $objName = $valTokens[0];
+            }
+        }
+
+        $line = `fgetline $fileId`;
+    }
+    fclose $fileId;
+}
+
+string $objPath = $folder + $objName;
+
+file -import -type "OBJ" -options "mo=1" $objPath;

@@ -1,0 +1,15 @@
+OBJExp.txt、OBJImp.txt、FBXExp.txt、FBXImp.txt、を
+C:\Program Files\Pixologic\ZBrush 2022\ZStartup\ZPlugs64
+に入れてZbrush起動
+Zスクリプト＞読込でTXTを読み込むと
+FBXExp.zsc、FBXImp.zsc、OBJExp.zsc、OBJImp.zscが作成されるので
+再起動してZプラグイン＞ODCPlugin から起動
+
+
+ FBXExp.zsc、FBXImp.zsc、OBJExp.zsc、OBJImp.zsc が既にある場合はファイルを
+
+C:\Program Files\Pixologic\ZBrush 「各バージョン」\ZStartup\ZPlugs64
+又は
+C:\Program Files\Maxon ZBrush 「各バージョン」\ZStartup\ZPlugs64
+
+にコピーして起動すると、Zプラグイン＞ODCPluginにあります。

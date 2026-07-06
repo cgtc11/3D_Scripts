@@ -1,0 +1,15 @@
+//source InstallShelf; installShelf();
+
+global proc installShelf()
+{
+
+shelfButton -label "OBJExp" -rpt true -image1 "ObjExp.png"  -al "center"  -p "Custom" -c "source ObjExp;" ;
+
+shelfButton -label "OBJImp" -rpt true -image1 "ObjImp.png"  -al "center"  -p "Custom" -c "source ObjImp;" ;
+
+shelfButton -label "FBXExp" -rpt true -image1 "FbxExp.png"  -al "center"  -p "Custom" -c "source FbxExp;" ;
+
+shelfButton -label "FBXImp" -rpt true -image1 "FbxImp.png"  -al "center"  -p "Custom" -c "source FbxImp;" ;
+
+}
+

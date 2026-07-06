@@ -1,0 +1,44 @@
+// OBJを書き出すMELスクリプト（選択したオブジェクトのみ、C:/Temp/ImpExp.iniの設定に従う）
+
+string $folder = "C:/Temp/";
+string $objName = "model.obj";
+string $iniPath = "C:/Temp/ImpExp.ini";
+
+if (`filetest -r $iniPath`) {
+    int $fileId = `fopen $iniPath "r"`;
+    string $line = `fgetline $fileId`;
+    while (size($line) > 0) {
+        $line = substituteAllString($line, "\r", "");
+        $line = substituteAllString($line, "\n", "");
+
+        if (`match "^[ \t]*folder[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $folder = $valTokens[0];
+            }
+        } else if (`match "^[ \t]*obj_name[ \t]*=" $line` != "") {
+            string $parts[];
+            tokenize $line "=" $parts;
+            if (size($parts) > 1) {
+                string $valTokens[];
+                tokenize $parts[1] $valTokens;
+                if (size($valTokens) > 0) $objName = $valTokens[0];
+            }
+        }
+
+        $line = `fgetline $fileId`;
+    }
+    fclose $fileId;
+}
+
+string $objPath = $folder + $objName;
+
+string $selection[] = `ls -selection`;
+if (size($selection) > 0) {
+    file -force -options "groups=1;ptgroups=1;materials=1;smoothing=1;normals=1" -typ "OBJexport" -pr -es $objPath;
+} else {
+    warning "No objects selected.";
+}

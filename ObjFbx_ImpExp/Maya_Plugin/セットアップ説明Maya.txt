@@ -1,0 +1,15 @@
+
+以下のフォルダに
+
+C:\Users\「ユーザー名」\Documents\maya\
+
+prefs
+scripts
+
+２つのフォルダを上書き
+
+MAYAを起動して以下のコマンドをMELで実行
+
+source ImpExpInstallShelf; installShelf();
+　
+カスタムタブにスクリプトが追加されます

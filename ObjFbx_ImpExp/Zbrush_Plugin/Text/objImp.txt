@@ -1,0 +1,67 @@
+// ZScript: Import OBJ using C:/Temp/ImpExp.ini settings as a ZPlugin
+// ※ ImpExp.iniが無い/読めない場合はデフォルト値(C:/Temp/model.obj)を使用
+
+[VarDef, gIniPath, "C:/Temp/ImpExp.ini"]
+[VarDef, gFolder, "C:/Temp/"]
+[VarDef, gObjName, "model.obj"]
+[VarDef, gCR, [StrFromAsc, 13]]
+[VarDef, gLF, [StrFromAsc, 10]]
+
+// ボタン内で使う変数はここで宣言しておく（未宣言だとMemReadString等でエラーになる）
+[VarDef, gIniText, ""]
+[VarDef, gKey, ""]
+[VarDef, gIdx, 0]
+[VarDef, gEndA, 0]
+[VarDef, gEndB, 0]
+[VarDef, gEnd, 0]
+
+// プラグインメニューを作成
+[ISubPalette, "ZPlugin:ImpExpPlugin"]
+
+// インポートボタンを作成
+[IButton, "ZPlugin:ImpExpPlugin:objImp", "Import model from OBJ (uses C:\\Temp\\ImpExp.ini)",
+
+	// --- ImpExp.iniを読み直して folder / obj_name を更新 ---
+	[VarSet, gFolder, "C:/Temp/"]
+	[VarSet, gObjName, "model.obj"]
+
+	[If, [FileExists, gIniPath],
+		[MemCreateFromFile, gIniMem, gIniPath]
+		[MemReadString, gIniMem, gIniText]
+		[MemDelete, gIniMem]
+
+		// folder の抽出
+		[VarSet, gKey, "folder = "]
+		[VarSet, gIdx, [StrFind, gKey, gIniText]]
+		[If, gIdx >= 0,
+			[VarSet, gIdx, gIdx + [StrLength, gKey]]
+			[VarSet, gEndA, [StrFind, gCR, gIniText, gIdx]]
+			[VarSet, gEndB, [StrFind, gLF, gIniText, gIdx]]
+			[VarSet, gEnd, [StrLength, gIniText]]
+			[If, gEndA >= 0, [VarSet, gEnd, gEndA]]
+			[If, gEndB >= 0,
+				[If, gEndB < gEnd, [VarSet, gEnd, gEndB]]
+			]
+			[VarSet, gFolder, [StrExtract, gIniText, gIdx, gEnd - 1]]
+		]
+
+		// obj_name の抽出
+		[VarSet, gKey, "obj_name = "]
+		[VarSet, gIdx, [StrFind, gKey, gIniText]]
+		[If, gIdx >= 0,
+			[VarSet, gIdx, gIdx + [StrLength, gKey]]
+			[VarSet, gEndA, [StrFind, gCR, gIniText, gIdx]]
+			[VarSet, gEndB, [StrFind, gLF, gIniText, gIdx]]
+			[VarSet, gEnd, [StrLength, gIniText]]
+			[If, gEndA >= 0, [VarSet, gEnd, gEndA]]
+			[If, gEndB >= 0,
+				[If, gEndB < gEnd, [VarSet, gEnd, gEndB]]
+			]
+			[VarSet, gObjName, [StrExtract, gIniText, gIdx, gEnd - 1]]
+		]
+	]
+
+	// 読み込むOBJファイルのパスを指定
+	[FileNameSetNext, [StrMerge, gFolder, gObjName]]
+	[IPress, Tool:Import] // Importボタンを押してファイルを読み込む
+]

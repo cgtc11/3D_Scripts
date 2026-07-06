@@ -1,0 +1,70 @@
+// ZScript: Export FBX using C:/Temp/ImpExp.ini settings as a ZPlugin
+// ※ ImpExp.iniが無い/読めない場合はデフォルト値(C:/Temp/model.fbx)を使用
+
+[VarDef, gIniPath, "C:/Temp/ImpExp.ini"]
+[VarDef, gFolder, "C:/Temp/"]
+[VarDef, gFbxName, "model.fbx"]
+[VarDef, gCR, [StrFromAsc, 13]]
+[VarDef, gLF, [StrFromAsc, 10]]
+
+// ボタン内で使う変数はここで宣言しておく（未宣言だとMemReadString等でエラーになる）
+[VarDef, gIniText, ""]
+[VarDef, gKey, ""]
+[VarDef, gIdx, 0]
+[VarDef, gEndA, 0]
+[VarDef, gEndB, 0]
+[VarDef, gEnd, 0]
+
+// プラグインメニューを作成
+[ISubPalette, "ZPlugin:ImpExpPlugin"]
+
+// エクスポートボタンを作成
+[IButton, "ZPlugin:ImpExpPlugin:FBXExp", "Export model as FBX (uses C:\\Temp\\ImpExp.ini)",
+
+	[IShowActions, 0]
+	[IConfig, 4.6]
+
+	// --- ImpExp.iniを読み直して folder / fbx_name を更新 ---
+	[VarSet, gFolder, "C:/Temp/"]
+	[VarSet, gFbxName, "model.fbx"]
+
+	[If, [FileExists, gIniPath],
+		[MemCreateFromFile, gIniMem, gIniPath]
+		[MemReadString, gIniMem, gIniText]
+		[MemDelete, gIniMem]
+
+		// folder の抽出
+		[VarSet, gKey, "folder = "]
+		[VarSet, gIdx, [StrFind, gKey, gIniText]]
+		[If, gIdx >= 0,
+			[VarSet, gIdx, gIdx + [StrLength, gKey]]
+			[VarSet, gEndA, [StrFind, gCR, gIniText, gIdx]]
+			[VarSet, gEndB, [StrFind, gLF, gIniText, gIdx]]
+			[VarSet, gEnd, [StrLength, gIniText]]
+			[If, gEndA >= 0, [VarSet, gEnd, gEndA]]
+			[If, gEndB >= 0,
+				[If, gEndB < gEnd, [VarSet, gEnd, gEndB]]
+			]
+			[VarSet, gFolder, [StrExtract, gIniText, gIdx, gEnd - 1]]
+		]
+
+		// fbx_name の抽出
+		[VarSet, gKey, "fbx_name = "]
+		[VarSet, gIdx, [StrFind, gKey, gIniText]]
+		[If, gIdx >= 0,
+			[VarSet, gIdx, gIdx + [StrLength, gKey]]
+			[VarSet, gEndA, [StrFind, gCR, gIniText, gIdx]]
+			[VarSet, gEndB, [StrFind, gLF, gIniText, gIdx]]
+			[VarSet, gEnd, [StrLength, gIniText]]
+			[If, gEndA >= 0, [VarSet, gEnd, gEndA]]
+			[If, gEndB >= 0,
+				[If, gEndB < gEnd, [VarSet, gEnd, gEndB]]
+			]
+			[VarSet, gFbxName, [StrExtract, gIniText, gIdx, gEnd - 1]]
+		]
+	]
+
+	// 保存先の指定
+	[FileNameSetNext, [StrMerge, gFolder, gFbxName]]
+	[IPress, Tool:Export] // Exportボタンを押す
+]
