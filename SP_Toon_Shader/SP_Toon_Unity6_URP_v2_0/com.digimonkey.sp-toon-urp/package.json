@@ -1,0 +1,10 @@
+{
+  "name": "com.digimonkey.sp-toon-urp",
+  "version": "2.0.0",
+  "displayName": "SP Toon Shader URP",
+  "description": "DiGiMonkey SP Toon shader for Unity 6 URP. Hull Outline, Normal Map, AO, Rim Light, Thickness, MatCap, Surface Mode.",
+  "unity": "6000.0",
+  "author": {
+    "name": "DiGiMonkey"
+  }
+}

@@ -1,0 +1,163 @@
+shader SP_Toon_User0_3dsMax2026(
+    float LightPositionX = 10.0,
+    float LightPositionY = 10.0,
+    float LightPositionZ = 10.0,
+
+    int UseOutline = 1,
+    float OutlineThickness = 0.2,
+    float OutlineBlur = 0.0,
+
+    float InlineThickness = 0.3,
+    float InlineBlur = 0.0,
+    float InlineOnTop = 1.0,
+
+    float ToonParam2 = 0.0,
+    float ToonParam3 = -1.0,
+    float ToonParam4 = -1.0,
+    float ToonParam5 = -1.0,
+    float ToonParam6 = -1.0,
+    float ToonParam7 = -1.0,
+ 
+    float ToonBlur = 0.0,
+
+    color BaseColor = color(1.0, 1.0, 1.0),
+    color OutlineColor = color(0.0, 0.297, 1.0),
+    color InlineColor = color(0.366, 0.027, 0.0),
+
+    color ToonColor2 = color(0.554, 0.554, 0.554),
+    color ToonColor3 = color(0.232, 0.232, 0.232),
+    color ToonColor4 = color(0.095, 0.095, 0.095),
+    color ToonColor5 = color(0.070, 0.070, 0.070),
+    color ToonColor6 = color(0.025, 0.025, 0.025),
+    color ToonColor7 = color(0.016, 0.016, 0.016),
+
+    float Curvature = 1.0,
+    float Roughness = 0.5,
+    float Metallic = 0.0,
+    float SpecularLevel = 0.5,
+    float Opacity = 1.0,
+
+    output color OutColor = color(0.0)
+)
+{
+    normal Ns = normalize(N);
+    vector V = normalize(-I);
+
+    point lightPosition = point(
+        LightPositionX,
+        LightPositionY,
+        LightPositionZ
+    );
+    vector lightVector = vector(lightPosition - P);
+
+    if (length(lightVector) < 0.000001)
+    {
+        lightVector = vector(0.0, 1.0, 0.0);
+    }
+
+    vector Ls = normalize(lightVector);
+
+    float NdV = dot(Ns, V);
+    float NdL = dot(Ns, Ls);
+    color base_toon = BaseColor;
+
+    float mask2 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask2 = (NdL <= ToonParam2) ? 1.0 : 0.0;
+    else
+        mask2 = 1.0 - smoothstep(
+            ToonParam2 - ToonBlur,
+            ToonParam2 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor2, mask2);
+
+    float mask3 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask3 = (NdL <= ToonParam3) ? 1.0 : 0.0;
+    else
+        mask3 = 1.0 - smoothstep(
+            ToonParam3 - ToonBlur,
+            ToonParam3 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor3, mask3);
+
+    float mask4 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask4 = (NdL <= ToonParam4) ? 1.0 : 0.0;
+    else
+        mask4 = 1.0 - smoothstep(
+            ToonParam4 - ToonBlur,
+            ToonParam4 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor4, mask4);
+
+    float mask5 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask5 = (NdL <= ToonParam5) ? 1.0 : 0.0;
+    else
+        mask5 = 1.0 - smoothstep(
+            ToonParam5 - ToonBlur,
+            ToonParam5 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor5, mask5);
+
+    float mask6 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask6 = (NdL <= ToonParam6) ? 1.0 : 0.0;
+    else
+        mask6 = 1.0 - smoothstep(
+            ToonParam6 - ToonBlur,
+            ToonParam6 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor6, mask6);
+
+    float mask7 = 0.0;
+    if (ToonBlur <= 0.000001)
+        mask7 = (NdL <= ToonParam7) ? 1.0 : 0.0;
+    else
+        mask7 = 1.0 - smoothstep(
+            ToonParam7 - ToonBlur,
+            ToonParam7 + ToonBlur,
+            NdL
+        );
+    base_toon = mix(base_toon, ToonColor7, mask7);
+
+    // Calculate Outline Mask
+    float outlineMask = 0.0;
+    if (UseOutline != 0)
+    {
+        if (OutlineBlur <= 0.000001)
+            outlineMask = (NdV < OutlineThickness) ? 1.0 : 0.0;
+        else
+            outlineMask = 1.0 - smoothstep(
+                OutlineThickness - OutlineBlur,
+                OutlineThickness + OutlineBlur,
+                NdV
+            );
+    }
+
+    // Calculate Inline Mask
+    float inlineMask = 0.0;
+    if (InlineBlur <= 0.000001)
+        inlineMask = (Curvature < InlineThickness) ? 1.0 : 0.0;
+    else
+        inlineMask = 1.0 - smoothstep(
+            InlineThickness - InlineBlur,
+            InlineThickness + InlineBlur,
+            Curvature
+        );
+
+    // Dynamic layering paths
+    color pathA_inline = mix(base_toon, InlineColor, inlineMask);
+    color pathA_final = mix(pathA_inline, OutlineColor, outlineMask);
+
+    color pathB_outline = mix(base_toon, OutlineColor, outlineMask);
+    color pathB_final = mix(pathB_outline, InlineColor, inlineMask);
+
+    OutColor = mix(pathA_final, pathB_final, InlineOnTop);
+}
