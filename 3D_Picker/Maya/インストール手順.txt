@@ -1,0 +1,87 @@
+Maya2025で動作確認しています
+
+■■PickerTool説明■■
+----------------------
+オブジェクトの選択を手助けするスクリプト
+（オリジナルのピッカー制作スクリプトと再生スクリプト２つ）
+----------------------
+
+■■セットアップ説明■■
+----------------------
+Ppythonの場合
+保存先：
+
+C:/Users/YourName/Documents/maya/scripts/
+PickerEditor_Maya.py.py
+PickerEditor.png
+PickerPlayer_Maya.py
+PickerPlayer.png
+BBCleaner.py
+BBCleaner.png
+
+Mayaを起動
+
+----------------------
+
+下の python コマンドを Script Editor の pythonタブに入力してEnter
+
+import importlib
+import PickerEditor_Maya
+importlib.reload(PickerEditor_Maya)
+PickerEditor_Maya.show()
+
+PickerEditor が起動します
+起動が確認できたら、上のコマンドを中ドラックでカスタムTabに登録して
+ボタンを PickerEditor_24i.bmp に変更して使用してください。
+----------------------
+
+下の python コマンドを Script Editor の pythonタブに入力してEnter
+
+import importlib
+import PickerPlayer_Maya
+importlib.reload(PickerPlayer_Maya)
+PickerPlayer_Maya.maya_picker_ui = PickerPlayer_Maya.PickerPlayerMaya()
+PickerPlayer_Maya.maya_picker_ui.show()
+
+PickerPlayer が起動します
+起動が確認できたら、上のコマンドを中ドラックでカスタムTabに登録して
+ボタンを PickerPlayer_24i.bmp に変更して使用してください。
+
+----------------------
+
+下の python コマンドを Script Editor の pythonタブに入力してEnter
+
+import importlib
+import BBCleaner
+importlib.reload(BBCleaner)
+BBCleaner.show() # show()
+
+BBCleaner が起動します
+起動が確認できたら、上のコマンドを中ドラックでカスタムTabに登録して
+ボタンを BBCleaner.png に変更して使用してください。
+
+------------------------------------------
+使用方法
+------------------------------------------
+PickerEditor_Maya
+
+ピッカーを作成するスクリプト
+・画像を下敷きにして任意にマウス左ドラッグで四角を作成
+・位置と大きさ、色は後からでも変更可能
+・設定ファイルを保存、呼び出し出来るようにしています
+・下敷きの画像と同じファイル名で設定を保存すれば、画像をドロップすれば自動読み込み
+・複数選択の登録も可能
+
+
+PickerPlayer_Maya
+・下敷きの画像と同じファイル名で設定を保存すれば、画像をドロップすれば自動読み込み
+・四角をクリックで登録したものを選択できます
+・Shift+クリックで複数選択可、もう一度クリックで選択解除
+・ドラッグでも複数選択可
+・複数起動可能
+
+BBCleaner
+・ゴミ取です
+　古いデータのBonyとBeefy読んだ時にあるゴミとかを消します。
+
+----------------------
