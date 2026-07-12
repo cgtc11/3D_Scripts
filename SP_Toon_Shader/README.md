@@ -1,2 +1,0 @@
-# SP_Toon_Shader
-Substance3DPainterで作成していたSimpleToonShaderに似たShaderを置いてます
