@@ -6,7 +6,7 @@ SpringMax 018 / SpringMaya 003 を基準にした、単一ファイルのBlender
 3Dビュー > サイドバー > SpringBlender から使用します。
 """
 
-VERSION = (0, 1, 0)
+VERSION = (0, 2, 1)
 VERSION_TEXT = ".".join(str(part) for part in VERSION[:2])
 
 bl_info = {
@@ -16,7 +16,7 @@ bl_info = {
     "blender": (5, 2, 0),
     "location": "3D View > Sidebar > SpringBlender",
     "description": "選択したボーンチェーンにスプリング、風、重力、衝突をベイクします",
-    "doc_url": "https://github.com/cgtc11/Script_3D/Spring",
+    "doc_url": "https://github.com/cgtc11/Script_3D/tree/main/Spring",
     "tracker_url": "https://github.com/cgtc11/Script_3D/issues",
     "category": "Animation",
 }
@@ -1065,49 +1065,99 @@ class SPRINGBLENDER_OT_sync_gravity(Operator):
 
 
 class SPRINGBLENDER_PT_main(Panel):
-    bl_label = "SpringBlender Ver0.1"
+    bl_label = "SpringBlender"
     bl_idname = "SPRINGBLENDER_PT_main"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "SpringBlender"
 
     def draw(self, context):
+        layout = self.layout
+        layout.operator("spring_blender.apply", icon='PLAY')
+
+
+class SpringBlenderSubPanel:
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "SpringBlender"
+    bl_parent_id = "SPRINGBLENDER_PT_main"
+
+
+class SPRINGBLENDER_PT_spring(SpringBlenderSubPanel, Panel):
+    bl_label = "スプリング"
+    bl_idname = "SPRINGBLENDER_PT_spring"
+
+    def draw(self, context):
         layout, props = self.layout, context.scene.spring_blender
-        layout.label(text=f"製作者: DiGiMonkey / Ver{VERSION_TEXT}")
-        layout.label(text="Blender 5.2以降")
-        link = layout.operator("wm.url_open", text="GitHub: Script_3D / Spring", icon='URL')
-        link.url = "https://github.com/cgtc11/Script_3D/Spring"
-        box = layout.box(); box.label(text="スプリング")
         for name in ("spring", "twist", "tension", "flex", "inertia"):
-            box.prop(props, name)
-        row = box.row(align=True); row.prop(props, "start_frame"); row.prop(props, "end_frame")
-        box.prop(props, "sub_div"); box.prop(props, "wipe_subframe")
-        row = box.row(align=True); row.prop(props, "is_loop"); row.prop(props, "is_pose_match")
-        box.prop(props, "include_root"); box.prop(props, "include_branch_points")
+            layout.prop(props, name)
+        row = layout.row(align=True); row.prop(props, "start_frame"); row.prop(props, "end_frame")
+        layout.prop(props, "sub_div"); layout.prop(props, "wipe_subframe")
+        row = layout.row(align=True); row.prop(props, "is_loop"); row.prop(props, "is_pose_match")
+        layout.prop(props, "include_root"); layout.prop(props, "include_branch_points")
 
-        box = layout.box(); box.label(text="基準姿勢")
-        row = box.row(align=True); row.operator("spring_blender.save_angles"); row.operator("spring_blender.restore_angles")
-        box.operator("spring_blender.clear_angles")
-        row = box.row(align=True); row.operator("spring_blender.copy_pose"); row.operator("spring_blender.paste_pose")
-        box.operator("spring_blender.straighten")
 
-        box = layout.box(); box.prop(props, "is_collision")
-        column = box.column(); column.enabled = props.is_collision
+class SPRINGBLENDER_PT_reference(SpringBlenderSubPanel, Panel):
+    bl_label = "基準姿勢"
+    bl_idname = "SPRINGBLENDER_PT_reference"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row(align=True); row.operator("spring_blender.save_angles"); row.operator("spring_blender.restore_angles")
+        layout.operator("spring_blender.clear_angles")
+
+
+class SPRINGBLENDER_PT_pose(SpringBlenderSubPanel, Panel):
+    bl_label = "骨ポーズ"
+    bl_idname = "SPRINGBLENDER_PT_pose"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row(align=True); row.operator("spring_blender.copy_pose"); row.operator("spring_blender.paste_pose")
+        layout.operator("spring_blender.straighten")
+
+
+class SPRINGBLENDER_PT_collision(SpringBlenderSubPanel, Panel):
+    bl_label = "当たり判定"
+    bl_idname = "SPRINGBLENDER_PT_collision"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout, props = self.layout, context.scene.spring_blender
+        layout.prop(props, "is_collision")
+        column = layout.column(); column.enabled = props.is_collision
         column.prop(props, "collision_margin"); column.prop(props, "collision_recovery_stiffness"); column.prop(props, "collision_chain_follow")
         row = column.row(align=True); row.operator("spring_blender.create_sphere"); row.operator("spring_blender.create_box")
         column.operator("spring_blender.remove_colliders")
 
-        box = layout.box(); box.prop(props, "use_wind")
-        column = box.column(); column.enabled = props.use_wind
+
+class SPRINGBLENDER_PT_wind(SpringBlenderSubPanel, Panel):
+    bl_label = "風"
+    bl_idname = "SPRINGBLENDER_PT_wind"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout, props = self.layout, context.scene.spring_blender
+        layout.prop(props, "use_wind")
+        column = layout.column(); column.enabled = props.use_wind
         for name in ("wind_max", "wind_min", "wind_frequency", "wind_tip"):
             column.prop(props, name)
         row = column.row(align=True); row.operator("spring_blender.create_wind"); row.operator("spring_blender.sync_wind")
 
-        box = layout.box(); box.prop(props, "use_gravity")
-        column = box.column(); column.enabled = props.use_gravity
+
+class SPRINGBLENDER_PT_gravity(SpringBlenderSubPanel, Panel):
+    bl_label = "重力"
+    bl_idname = "SPRINGBLENDER_PT_gravity"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout, props = self.layout, context.scene.spring_blender
+        layout.prop(props, "use_gravity")
+        column = layout.column(); column.enabled = props.use_gravity
         column.prop(props, "gravity_strength")
         row = column.row(align=True); row.operator("spring_blender.create_gravity"); row.operator("spring_blender.sync_gravity")
-        layout.separator(); layout.operator("spring_blender.apply", icon='PLAY')
 
 
 CLASSES = (
@@ -1127,6 +1177,12 @@ CLASSES = (
     SPRINGBLENDER_OT_create_gravity,
     SPRINGBLENDER_OT_sync_gravity,
     SPRINGBLENDER_PT_main,
+    SPRINGBLENDER_PT_spring,
+    SPRINGBLENDER_PT_reference,
+    SPRINGBLENDER_PT_pose,
+    SPRINGBLENDER_PT_collision,
+    SPRINGBLENDER_PT_wind,
+    SPRINGBLENDER_PT_gravity,
 )
 
 
