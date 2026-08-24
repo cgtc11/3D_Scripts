@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SpringMax 018 操作マニュアル</title>
+<style>
+:root{
+  --bg:#f4f6f8; --paper:#fff; --text:#20242a; --sub:#5a6470; --line:#d9dee5;
+  --accent:#2d6da3; --accent-soft:#edf5fb; --warn:#9a5b00; --warn-bg:#fff7e8;
+  --ok:#276749; --ok-bg:#eef9f3; --code:#19212a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Yu Gothic UI","Yu Gothic","Meiryo",sans-serif;line-height:1.75}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 64px}
+.hero{background:linear-gradient(135deg,#18364f,#2d6da3);color:#fff;border-radius:16px;padding:32px 36px;box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.hero h1{font-size:34px;line-height:1.25;margin:0 0 8px}.hero p{margin:6px 0;color:#eaf2f8}.badge{display:inline-block;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 10px;margin:8px 6px 0 0;font-size:13px}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-top:24px}
+nav{position:sticky;top:18px;align-self:start;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:0 3px 12px rgba(0,0,0,.04)}
+nav strong{display:block;margin-bottom:8px}nav a{display:block;padding:6px 3px;color:#37414c;font-size:14px;border-bottom:1px solid #eef1f4}nav a:last-child{border-bottom:0}
+main{min-width:0}.section{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:26px 28px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.035)}
+h2{font-size:24px;margin:0 0 18px;border-bottom:2px solid var(--accent);padding-bottom:8px}h3{font-size:18px;margin:26px 0 10px}h4{font-size:15px;margin:18px 0 6px;color:#35404b}
+p{margin:9px 0}ul,ol{margin:8px 0 8px 1.4em;padding:0}li{margin:5px 0}
+.callout{border-left:5px solid var(--accent);background:var(--accent-soft);padding:13px 16px;border-radius:7px;margin:14px 0}.warn{border-left-color:#d58a00;background:var(--warn-bg)}.ok{border-left-color:#38a169;background:var(--ok-bg)}
+.steps{counter-reset:step;display:grid;gap:10px}.step{counter-increment:step;border:1px solid var(--line);border-radius:9px;padding:13px 15px 13px 52px;position:relative}.step:before{content:counter(step);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;text-align:center;line-height:28px;font-weight:700}
+table{width:100%;border-collapse:collapse;margin:12px 0 4px;font-size:14px}th,td{border:1px solid var(--line);padding:9px 10px;vertical-align:top}th{background:#eef2f6;text-align:left;white-space:nowrap}.num{font-family:Consolas,monospace;white-space:nowrap}
+code,pre{font-family:Consolas,"BIZ UDゴシック",monospace}pre{background:var(--code);color:#edf3f7;border-radius:8px;padding:14px 16px;overflow:auto;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fbfcfd}.card h4{margin-top:0;color:var(--accent)}
+.kbd{display:inline-block;border:1px solid #aeb6bf;border-bottom-width:2px;border-radius:4px;background:#fafafa;padding:0 6px;font-size:12px;font-family:Consolas,monospace}
+.small{font-size:13px;color:var(--sub)}.footer{color:var(--sub);font-size:12px;text-align:center;margin-top:24px}
+.printbtn{float:right;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1);color:white;border-radius:7px;padding:7px 12px;cursor:pointer}.printbtn:hover{background:rgba(255,255,255,.18)}
+@media(max-width:850px){.layout{grid-template-columns:1fr}nav{position:static}.grid2{grid-template-columns:1fr}.hero h1{font-size:28px}.wrap{padding:16px 12px 40px}.section{padding:20px 18px}}
+@media print{body{background:#fff}.wrap{max-width:none;padding:0}.hero{box-shadow:none;border-radius:0}.layout{display:block}nav,.printbtn{display:none}.section{box-shadow:none;break-inside:avoid;border-radius:0}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <button class="printbtn" onclick="window.print()">印刷 / PDF保存</button>
+    <h1>SpringMax 018 操作マニュアル</h1>
+    <p>3ds Maxの親子ボーンへ、スプリング・風・重力・当たり判定をベイクする補助ツールです。</p>
+    <span class="badge">対象: 3ds Max 2025以降</span><span class="badge">PySide6</span><span class="badge">単一PYファイル</span>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <strong>目次</strong>
+      <a href="#overview">1. 概要</a>
+      <a href="#install">2. 起動方法</a>
+      <a href="#quick">3. 基本的な使い方</a>
+      <a href="#selection">4. 骨の選択ルール</a>
+      <a href="#spring">5. スプリング設定</a>
+      <a href="#keys">6. キー設定</a>
+      <a href="#collision">7. 当たり判定</a>
+      <a href="#wind">8. 風</a>
+      <a href="#gravity">9. 重力</a>
+      <a href="#angle">10. 基準角度</a>
+      <a href="#pose">11. 骨ポーズ</a>
+      <a href="#recipes">12. 設定例</a>
+      <a href="#trouble">13. トラブル対処</a>
+      <a href="#notes">14. 注意事項</a>
+    </nav>
+
+    <main>
+      <section class="section" id="overview">
+        <h2>1. 概要</h2>
+        <p>SpringMaxは、選択した親子階層をフレームごとに計算し、揺れや外力を3ds Maxの回転キーとして生成するツールです。髪、紐、尻尾、アクセサリー、ケーブルなどの二次動作を想定しています。</p>
+        <div class="grid2">
+          <div class="card"><h4>できること</h4><ul><li>スプリングによる遅れ・揺れ</li><li>球 / ボックスとの衝突</li><li>風による先端側のなびき</li><li>方向指定できる重力</li><li>保存した基準角度への復帰</li><li>分岐した選択階層の一括計算</li></ul></div>
+          <div class="card"><h4>基本思想</h4><p>物理シミュレーターではなく、<strong>元の姿勢へ戻ろうとする骨チェーンに、慣性・風・重力・衝突補正を加える</strong>方式です。計算結果はキーへベイクされます。</p></div>
+        </div>
+        <div class="callout ok"><strong>Undo:</strong> 「適用」1回分は1つのUndoとして処理されます。結果がおかしい場合は <span class="kbd">Ctrl</span> + <span class="kbd">Z</span> 1回で計算前へ戻せます。</div>
+      </section>
+
+      <section class="section" id="install">
+        <h2>2. 起動方法</h2>
+        <div class="steps">
+          <div class="step"><code>SpringMax_018.py</code> を任意の場所へ保存します。</div>
+          <div class="step">3ds Max 2025以降を起動します。</div>
+          <div class="step">メニューの「スクリプト」→「スクリプトを実行」から <code>SpringMax_018.py</code> を選択します。</div>
+          <div class="step">「SpringMax 018」ウィンドウが表示されれば起動完了です。</div>
+        </div>
+        <div class="callout">追加のpipライブラリは不要です。3ds Max付属のPython / PySide6 / pymxsを使用します。</div>
+      </section>
+
+      <section class="section" id="quick">
+        <h2>3. 基本的な使い方</h2>
+        <div class="steps">
+          <div class="step">揺らしたい親子の骨を、親から子まで連続した状態で選択します。</div>
+          <div class="step">「スプリング」「ねじれ」「張力」などを調整します。最初はデフォルト値で構いません。</div>
+          <div class="step">必要なら「当たり判定」「風」「重力」を設定します。</div>
+          <div class="step">計算したいアニメーション範囲を確認します。</div>
+          <div class="step">「適用」を押します。</div>
+          <div class="step">タイムラインを再生して確認し、必要ならUndoして値を調整して再計算します。</div>
+        </div>
+        <div class="callout warn"><strong>重要:</strong> 最後の選択ノードは、その1つ上の骨が向くための「終端参照」として使われます。末端まで動かしたい場合は、最後に動かしたい骨の子 / End Bone / Pointなどまで選択しておくと確実です。</div>
+      </section>
+
+      <section class="section" id="selection">
+        <h2>4. 骨の選択ルール</h2>
+        <p>基本は「親 → 子」がつながった選択です。ローカルX軸が子方向を向くリグを想定しています。</p>
+        <h3>直列チェーン</h3>
+        <pre>Bone001 → Bone002 → Bone003 → Bone004 → End</pre>
+        <p>このように選択すると、親側から順番に計算します。</p>
+        <h3>分岐チェーン</h3>
+        <pre>Bone001
+├─ Bone002 → Bone003 → Bone004
+└─ Bone007 → Bone008 → Bone009</pre>
+        <p>複数の枝を同時選択できます。「分岐骨も計算」がONなら、分岐点自身も1回だけ計算し、その下の各枝を別チェーンとして処理します。</p>
+        <table>
+          <tr><th>設定</th><th>初期値</th><th>動作</th></tr>
+          <tr><td>ルート骨も計算</td><td>OFF</td><td>OFFでは選択群の一番上を固定ドライバとして扱います。ONなら一番上の骨も揺れ・風・衝突の対象です。</td></tr>
+          <tr><td>分岐骨も計算</td><td>ON</td><td>ONでは分岐点の骨も計算します。OFFでは分岐点を固定し、その下の枝だけを計算します。</td></tr>
+        </table>
+      </section>
+
+      <section class="section" id="spring">
+        <h2>5. スプリング設定</h2>
+        <table>
+          <tr><th>項目</th><th>初期値</th><th>説明</th><th>調整の目安</th></tr>
+          <tr><td>スプリング</td><td class="num">0.700</td><td>元の基準姿勢へ戻ろうとする動きと、前フレームからの遅れ方の中心となる値です。</td><td>まず0.7。柔らかい二次動作は0.6～0.8付近から調整。</td></tr>
+          <tr><td>ねじれ</td><td class="num">0.700</td><td>骨のUp方向 / ロール方向の追従を調整します。保存角度または計算開始角度へ戻る安定化も入っています。</td><td>ロールが不安定なら高め側から確認。</td></tr>
+          <tr><td>張力</td><td class="num">0.500</td><td>子・孫側とのつながりを意識して、関節の曲がりを馴染ませます。</td><td>関節がバラバラに見える場合に調整。</td></tr>
+          <tr><td>しなり</td><td class="num">0.000</td><td>骨長方向の伸縮追従を許可します。0なら基本的に骨長を維持します。</td><td>通常のBoneは0推奨。伸縮を意図するときだけ使用。</td></tr>
+          <tr><td>慣性</td><td class="num">0.000</td><td>前フレームまでの移動傾向をどの程度引きずるかを調整します。</td><td>揺れを残したい場合に少しずつ上げます。</td></tr>
+          <tr><td>サブフレーム</td><td class="num">1</td><td>1フレーム内の計算回数。値を増やすほど細かく計算します。</td><td>高速動作や衝突で不安定な場合は2～4を試します。</td></tr>
+        </table>
+        <div class="callout">サブフレームを増やすと計算時間とキー数が増えます。「サブフレームキーを削除」がONなら、計算後に整数フレーム以外のキーを削除します。</div>
+      </section>
+
+      <section class="section" id="keys">
+        <h2>6. キー設定</h2>
+        <table>
+          <tr><th>項目</th><th>説明</th></tr>
+          <tr><td>アニメーション範囲を使用</td><td>3ds Maxの現在のAnimation Rangeをそのまま使用します。ON中は開始 / 終了欄を直接変更しません。</td></tr>
+          <tr><td>開始 / 終了</td><td>「アニメーション範囲を使用」がOFFのときに計算範囲を指定します。</td></tr>
+          <tr><td>ループ</td><td>同じ範囲を追加で計算し、ループ動作を馴染ませる補助です。完全なシームレスを保証するものではありません。</td></tr>
+          <tr><td>ポーズ合わせ</td><td>計算前の子ノード姿勢を補助参照としてサンプルします。元アニメーションの姿勢変化、特にUp / ねじれ方向を維持したい場合に使います。</td></tr>
+          <tr><td>サブフレームキーを削除</td><td>サブフレーム計算で作られた整数フレーム以外のキーを計算後に削除します。初期値ONです。</td></tr>
+        </table>
+      </section>
+
+      <section class="section" id="collision">
+        <h2>7. 当たり判定</h2>
+        <p>SpringMaxでは、シーン内に作成した<strong>球</strong>と<strong>ボックス</strong>を衝突物として使用します。カプセル・平面は使用しません。</p>
+        <h3>作成手順</h3>
+        <div class="steps">
+          <div class="step">衝突物を置きたい位置のノードを選択します。未選択でも作成できます。</div>
+          <div class="step">「球作成」または「ボックス作成」を押します。</div>
+          <div class="step">Move / Rotate / Scale、または球Radius・Boxサイズを調整して身体などへ配置します。</div>
+          <div class="step">揺らす骨だけを選択し直します。</div>
+          <div class="step">「衝突判定を有効化」をONにして「適用」します。</div>
+        </div>
+        <div class="callout"><strong>衝突物は適用時に選択する必要はありません。</strong> SpringMaxが作成した球 / ボックスをシーン内から自動検索します。</div>
+        <table>
+          <tr><th>項目</th><th>初期値</th><th>説明</th></tr>
+          <tr><td>当たり余白</td><td class="num">0.000</td><td>見た目の衝突物より、この値だけ外側へ膨らませて判定します。めり込み防止に使用します。</td></tr>
+          <tr><td>復帰の固さ</td><td class="num">0.150</td><td>衝突を抜けた後、通常の軌道へ戻る速さです。小さいほどじわっと戻り、1.0に近いほど早く戻ります。</td></tr>
+          <tr><td>関節連動</td><td class="num">0.650</td><td>関節付近で1本だけ急角度にならないよう、下位骨の補正を上位骨へ分散する強さです。</td></tr>
+        </table>
+        <h3>使い分け</h3>
+        <div class="grid2"><div class="card"><h4>球</h4><p>頭、肩、胸、関節など丸い領域向け。非等方スケールした場合も安全側の球として判定します。</p></div><div class="card"><h4>ボックス</h4><p>胴体、背中、板状パーツなどに向いています。回転したボックスにも対応します。</p></div></div>
+        <div class="callout warn">骨の支点そのものが衝突物内部にある場合、その支点を外へ移動することはできません。子側を逃がす方向で補正します。</div>
+      </section>
+
+      <section class="section" id="wind">
+        <h2>8. 風</h2>
+        <p>風は円錐オブジェクトで方向を指定します。<strong>円錐の先端方向（ローカルZ+）が風向き</strong>です。</p>
+        <h3>設定手順</h3>
+        <div class="steps">
+          <div class="step">「風オブジェクト作成 / 値更新」を押します。風用の円錐が無ければ新規作成されます。</div>
+          <div class="step">円錐を回転して風向きを決めます。</div>
+          <div class="step">最大風力・最小風力・周波数・先端なびき倍率を設定します。</div>
+          <div class="step">「風を有効化」をONにして骨を選択し、「適用」します。</div>
+        </div>
+        <table>
+          <tr><th>項目</th><th>初期値</th><th>説明</th></tr>
+          <tr><td>最大風力</td><td class="num">100.000</td><td>風が強いタイミングの強さ。014以降は風方向へ滑らかに寄せる方式で、強風時の急反転を抑えています。</td></tr>
+          <tr><td>最小風力</td><td class="num">0.500</td><td>風が弱いタイミングの強さ。</td></tr>
+          <tr><td>周波数</td><td class="num">1.000</td><td>風の周期。1.0で約30フレームに1周期です。</td></tr>
+          <tr><td>先端なびき倍率</td><td class="num">2.50</td><td>先端ほど強く風を受ける倍率。1.0で均一、値を上げるほど毛先側が大きくなびきます。</td></tr>
+        </table>
+        <div class="callout ok">骨ごとに少し位相差を付けているため、チェーン全体が同じ角度で傾くだけではなく、根元から先端へ波が伝わるようになびきます。</div>
+        <div class="callout warn">風を有効化しているのに風オブジェクトが無い場合は計算できません。先に「風オブジェクト作成 / 値更新」を押してください。</div>
+      </section>
+
+      <section class="section" id="gravity">
+        <h2>9. 重力</h2>
+        <p>重力も円錐オブジェクトで方向を指定します。<strong>円錐の先端方向（ローカルZ+）が重力方向</strong>です。必ずワールド-Z固定ではないため、演出上の任意方向へ引っ張る用途にも使えます。</p>
+        <div class="steps">
+          <div class="step">「重力オブジェクト作成 / 値更新」を押します。</div>
+          <div class="step">円錐を回転し、引っ張りたい方向へ先端を向けます。</div>
+          <div class="step">「重力の強さ」を設定します。</div>
+          <div class="step">「重力を有効化」をONにして「適用」します。</div>
+        </div>
+        <p><strong>初期値:</strong> 重力の強さ <span class="num">1.000</span></p>
+        <div class="callout">風・重力は、それぞれの有効化チェックがOFFなら、シーン内に円錐が残っていても計算へ使用しません。</div>
+      </section>
+
+      <section class="section" id="angle">
+        <h2>10. 基準角度</h2>
+        <p>SpringMaxは、何度衝突してもロール角が累積して根元が回り続けないよう、必ず基準姿勢へ戻ろうとします。</p>
+        <h3>基準姿勢の優先順位</h3>
+        <ol><li>「角度を保存」している骨 → <strong>保存したローカル角度</strong></li><li>保存していない骨 → <strong>「適用」を押した瞬間のローカル角度</strong></li></ol>
+        <table>
+          <tr><th>ボタン</th><th>動作</th></tr>
+          <tr><td>角度を保存</td><td>現在選択している各ノードの角度を基準として保存します。Maxファイル内のUser Propertyにも保持されます。</td></tr>
+          <tr><td>保存角度に戻す</td><td>選択ノードを保存済み角度へ戻します。</td></tr>
+          <tr><td>保存角度を解除</td><td>選択ノードの保存基準を解除します。次回適用時は、その時点の角度が基準になります。</td></tr>
+        </table>
+        <div class="callout ok">キャラクターの「正しい待機姿勢」が決まっている場合は、計算前に骨を選択して「角度を保存」しておく運用がおすすめです。</div>
+      </section>
+
+      <section class="section" id="pose">
+        <h2>11. 骨ポーズ</h2>
+        <table>
+          <tr><th>ボタン</th><th>説明</th></tr>
+          <tr><td>コピー</td><td>選択ノードの現在Transformを一時保存します。</td></tr>
+          <tr><td>貼り付け</td><td>同じノードへ一時保存したTransformを戻します。コピー情報はSpringMaxを実行しているPythonセッション中の一時情報です。</td></tr>
+          <tr><td>直線化</td><td>選択ノードを最初の子ノード方向へ向けます。チェーンの初期姿勢を整える補助機能です。</td></tr>
+        </table>
+      </section>
+
+      <section class="section" id="recipes">
+        <h2>12. 設定例</h2>
+        <h3>まず動作確認したい場合</h3>
+        <table><tr><th>スプリング</th><th>ねじれ</th><th>張力</th><th>慣性</th><th>サブフレーム</th></tr><tr><td>0.70</td><td>0.70</td><td>0.50</td><td>0.00</td><td>1</td></tr></table>
+        <p>風・重力・衝突は一度OFFにし、基本の揺れだけが正常か確認します。</p>
+        <h3>髪を風になびかせたい場合</h3>
+        <table><tr><th>最大風力</th><th>最小風力</th><th>周波数</th><th>先端なびき倍率</th></tr><tr><td>100</td><td>0.5～20</td><td>0.7～1.5</td><td>2.5～4.0</td></tr></table>
+        <p>先端だけをさらに大きく動かしたい場合は「先端なびき倍率」を先に調整し、最大風力を必要以上に極端に上げない方が扱いやすいです。</p>
+        <h3>身体へのめり込みを避けたい場合</h3>
+        <table><tr><th>当たり余白</th><th>復帰の固さ</th><th>関節連動</th></tr><tr><td>0.0 → 少しずつ増加</td><td>0.10～0.20</td><td>0.65～0.85</td></tr></table>
+        <p>まず球 / ボックスを見た目より少し大きめに配置し、必要に応じて当たり余白を追加します。</p>
+      </section>
+
+      <section class="section" id="trouble">
+        <h2>13. トラブル対処</h2>
+        <table>
+          <tr><th>症状</th><th>確認すること</th></tr>
+          <tr><td>一番上の骨が動かない</td><td>「ルート骨も計算」がOFFなら仕様です。一番上も揺らしたい場合はONにします。</td></tr>
+          <tr><td>分岐地点で動きが止まる</td><td>「分岐骨も計算」がONか確認します。018では初期値ONです。</td></tr>
+          <tr><td>末端の骨が回転しない</td><td>その骨の向きを決める子 / Endノードまで選択されているか確認します。</td></tr>
+          <tr><td>衝突を抜けた瞬間に急に戻る</td><td>「復帰の固さ」を下げます。0.10～0.15付近から確認してください。</td></tr>
+          <tr><td>関節だけ急に折れる</td><td>「関節連動」を上げます。球 / ボックスが関節の支点へ食い込みすぎていないかも確認します。</td></tr>
+          <tr><td>根元が何度も回ってしまう</td><td>「角度を保存」で正常姿勢を保存してから再計算します。以前の保存角度が不要なら一度「保存角度を解除」します。</td></tr>
+          <tr><td>何もしていないのに周期的に動く</td><td>「風を有効化」「重力を有効化」が意図せずONになっていないか確認します。</td></tr>
+          <tr><td>風力を変えても変化がない</td><td>風を有効化し、風オブジェクトが存在するか確認します。018は「適用」時にUIの風値を既存風オブジェクトへ同期します。</td></tr>
+          <tr><td>風の向きが違う</td><td>風円錐のローカルZ+、つまり円錐先端方向を確認します。</td></tr>
+          <tr><td>重力方向が違う</td><td>重力円錐の先端方向が重力方向です。</td></tr>
+          <tr><td>高速動作で不安定</td><td>サブフレームを2～4へ増やして再計算します。</td></tr>
+          <tr><td>結果がおかしくなった</td><td><span class="kbd">Ctrl</span> + <span class="kbd">Z</span> 1回で適用前へ戻します。</td></tr>
+        </table>
+      </section>
+
+      <section class="section" id="notes">
+        <h2>14. 注意事項</h2>
+        <ul>
+          <li>3ds Max 2025以降を対象としています。</li>
+          <li>ローカルX軸が子方向を向く一般的なBone系リグを前提としています。</li>
+          <li>特殊なController、Biped / CATなどは通常Boneと挙動が異なる場合があります。</li>
+          <li>「適用」は指定範囲内の対象回転キーを作り直します。重要なアニメーションは保存してから実行してください。</li>
+          <li>風 / 重力がONの場合、それぞれシーン内で最初に見つかったSpringMax用オブジェクトを計算に使用します。</li>
+          <li>球 / ボックス / 風 / 重力は、通常の3ds Maxオブジェクトとして移動・回転・スケールできます。ただしSpringMax識別情報を消すと自動認識されなくなります。</li>
+          <li>数値欄でEnterを押しても球・ボックス等は作成されません。オブジェクト作成は各作成ボタンを押したときだけ行われます。</li>
+        </ul>
+        <div class="callout warn"><strong>推奨:</strong> 本番データで初めて試す前に、簡単なBoneチェーンで設定を確認してください。特に当たり判定・風・重力は一度に全部ONにせず、1機能ずつ確認すると原因を切り分けやすくなります。</div>
+      </section>
+    </main>
+  </div>
+  <div class="footer">SpringMax 018 操作マニュアル / 3ds Max 2025以降</div>
+</div>
+</body>
+</html>
