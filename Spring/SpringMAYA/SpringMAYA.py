@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""SpringMaya 003 / Maya 2025以降 / PySide6
+"""SpringMaya 005 / Maya 2025以降 / PySide6
 
 単一ファイル版。Mayaのスクリプトエディタ(Python)から実行できます。
 """
@@ -16,7 +16,7 @@ from shiboken6 import wrapInstance
 
 from PySide6 import QtCore, QtWidgets
 
-BUILD = "003"
+BUILD = "005"
 EPS = 1.0e-8
 
 
@@ -1453,15 +1453,78 @@ def _maya_main_window():
         return wrapInstance(int(ptr), QtWidgets.QWidget)
     return None
 
+
+class CollapsibleSection(QtWidgets.QFrame):
+    """枠と矢印付き見出しを持つ、折りたたみ可能なUIセクション。"""
+
+    def __init__(self, title, parent=None, expanded=True):
+        super(CollapsibleSection, self).__init__(parent)
+        self.setObjectName("SpringMayaCollapsibleSection")
+        self.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.setStyleSheet(
+            "QFrame#SpringMayaCollapsibleSection {"
+            " border: 1px solid #777777;"
+            " border-radius: 3px;"
+            " background-color: transparent;"
+            "}"
+        )
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(6, 4, 6, 6)
+        layout.setSpacing(2)
+
+        self.toggle_button = QtWidgets.QToolButton()
+        self.toggle_button.setObjectName("SpringMayaSectionToggle")
+        self.toggle_button.setText(title)
+        self.toggle_button.setCheckable(True)
+        self.toggle_button.setChecked(bool(expanded))
+        self.toggle_button.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.toggle_button.setArrowType(
+            QtCore.Qt.ArrowType.DownArrow if expanded else QtCore.Qt.ArrowType.RightArrow
+        )
+        self.toggle_button.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
+        )
+        self.toggle_button.setStyleSheet(
+            "QToolButton#SpringMayaSectionToggle {"
+            " border: none;"
+            " border-radius: 2px;"
+            " background-color: rgba(255, 255, 255, 14);"
+            " font-weight: bold;"
+            " text-align: left;"
+            " padding: 4px 2px;"
+            "}"
+            "QToolButton#SpringMayaSectionToggle:hover {"
+            " background-color: rgba(255, 255, 255, 28);"
+            "}"
+        )
+        self.toggle_button.toggled.connect(self._set_expanded)
+
+        self.content = QtWidgets.QFrame()
+        self.content.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.content.setVisible(bool(expanded))
+        layout.addWidget(self.toggle_button)
+        layout.addWidget(self.content)
+
+    def _set_expanded(self, expanded):
+        self.toggle_button.setArrowType(
+            QtCore.Qt.ArrowType.DownArrow if expanded else QtCore.Qt.ArrowType.RightArrow
+        )
+        self.content.setVisible(bool(expanded))
+        self.updateGeometry()
+
+
 class SpringMayaDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(SpringMayaDialog, self).__init__(parent or _maya_main_window())
         self.setObjectName("SpringMayaDialog")
         self.setWindowTitle(f"SpringMaya {BUILD}")
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowType.Tool)
-        self.setMinimumWidth(390)
+        self.setMinimumSize(390, 560)
         self._cancel_requested = False
         self._build_ui()
+        self.resize(430, 870)
         self._load_range()
 
     def _spin(self, value, minimum=0.0, maximum=1.0, step=0.05, decimals=3):
@@ -1473,8 +1536,17 @@ class SpringMayaDialog(QtWidgets.QDialog):
         return widget
 
     def _build_ui(self):
-        root = QtWidgets.QVBoxLayout(self)
-        root.setContentsMargins(10, 10, 10, 10)
+        outer = QtWidgets.QVBoxLayout(self)
+        outer.setContentsMargins(8, 8, 8, 8)
+        outer.setSpacing(6)
+
+        scroll = QtWidgets.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        scroll_content = QtWidgets.QWidget()
+        root = QtWidgets.QVBoxLayout(scroll_content)
+        root.setContentsMargins(2, 2, 2, 2)
         root.setSpacing(8)
 
         note = QtWidgets.QLabel("親→子の連続したノードを選択して実行します。ローカルX軸が子方向を向くリグを想定しています。")
@@ -1484,8 +1556,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         build_label = QtWidgets.QLabel(f"ビルド: {BUILD}  /  Maya 2025以降  /  PySide6")
         root.addWidget(build_label)
 
-        spring_group = QtWidgets.QGroupBox("スプリング")
-        form = QtWidgets.QFormLayout(spring_group)
+        spring_group = CollapsibleSection("スプリング")
+        form = QtWidgets.QFormLayout(spring_group.content)
         self.spring_value = self._spin(0.7)
         self.twist_value = self._spin(0.7)
         self.tension_value = self._spin(0.5)
@@ -1510,8 +1582,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         form.addRow(self.include_branch_check)
         root.addWidget(spring_group)
 
-        range_group = QtWidgets.QGroupBox("キー設定")
-        range_layout = QtWidgets.QGridLayout(range_group)
+        range_group = CollapsibleSection("キー設定")
+        range_layout = QtWidgets.QGridLayout(range_group.content)
         self.active_range = QtWidgets.QCheckBox("アニメーション範囲を使用")
         self.active_range.setChecked(True)
         self.start_frame = QtWidgets.QSpinBox()
@@ -1533,8 +1605,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         self.active_range.toggled.connect(self._range_mode_changed)
         root.addWidget(range_group)
 
-        col_group = QtWidgets.QGroupBox("当たり判定")
-        col_layout = QtWidgets.QGridLayout(col_group)
+        col_group = CollapsibleSection("当たり判定", expanded=False)
+        col_layout = QtWidgets.QGridLayout(col_group.content)
         self.collision_check = QtWidgets.QCheckBox("衝突判定を有効化")
         self.collision_margin = self._spin(0.0, 0.0, 1000.0, 0.1, 3)
         self.collision_margin.setToolTip("衝突物をこの値だけ外側へ膨らませて判定します。めり込みが気になる場合に少し増やしてください。")
@@ -1565,8 +1637,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         col_layout.addWidget(clear_collision, 5, 0, 1, 2)
         root.addWidget(col_group)
 
-        wind_group = QtWidgets.QGroupBox("風")
-        wind_layout = QtWidgets.QFormLayout(wind_group)
+        wind_group = CollapsibleSection("風", expanded=False)
+        wind_layout = QtWidgets.QFormLayout(wind_group.content)
         self.wind_enable = QtWidgets.QCheckBox("風を有効化")
         self.wind_enable.setChecked(False)
         self.wind_enable.setToolTip("オフなら、シーンに風オブジェクトが残っていても計算には使用しません。")
@@ -1589,8 +1661,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         wind_layout.addRow(wind_note)
         root.addWidget(wind_group)
 
-        gravity_group = QtWidgets.QGroupBox("重力")
-        gravity_layout = QtWidgets.QFormLayout(gravity_group)
+        gravity_group = CollapsibleSection("重力", expanded=False)
+        gravity_layout = QtWidgets.QFormLayout(gravity_group.content)
         self.gravity_enable = QtWidgets.QCheckBox("重力を有効化")
         self.gravity_enable.setChecked(False)
         self.gravity_enable.setToolTip("オフなら、シーンに重力オブジェクトが残っていても計算には使用しません。")
@@ -1605,8 +1677,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         gravity_layout.addRow(gravity_note)
         root.addWidget(gravity_group)
 
-        angle_group = QtWidgets.QGroupBox("基準角度")
-        angle_layout = QtWidgets.QHBoxLayout(angle_group)
+        angle_group = CollapsibleSection("基準角度", expanded=False)
+        angle_layout = QtWidgets.QHBoxLayout(angle_group.content)
         save_angle_button = QtWidgets.QPushButton("角度を保存")
         restore_angle_button = QtWidgets.QPushButton("保存角度に戻す")
         clear_angle_button = QtWidgets.QPushButton("保存角度を解除")
@@ -1618,8 +1690,8 @@ class SpringMayaDialog(QtWidgets.QDialog):
         angle_layout.addWidget(clear_angle_button)
         root.addWidget(angle_group)
 
-        pose_group = QtWidgets.QGroupBox("骨ポーズ")
-        pose_layout = QtWidgets.QHBoxLayout(pose_group)
+        pose_group = CollapsibleSection("骨ポーズ", expanded=False)
+        pose_layout = QtWidgets.QHBoxLayout(pose_group.content)
         copy_button = QtWidgets.QPushButton("コピー")
         paste_button = QtWidgets.QPushButton("貼り付け")
         straight_button = QtWidgets.QPushButton("直線化")
@@ -1631,12 +1703,16 @@ class SpringMayaDialog(QtWidgets.QDialog):
         pose_layout.addWidget(straight_button)
         root.addWidget(pose_group)
 
+        root.addStretch(1)
+        scroll.setWidget(scroll_content)
+        outer.addWidget(scroll, 1)
+
         self.progress = QtWidgets.QProgressBar()
         self.progress.setRange(0, 100)
         self.status = QtWidgets.QLabel("待機中")
         self.status.setWordWrap(True)
-        root.addWidget(self.progress)
-        root.addWidget(self.status)
+        outer.addWidget(self.progress)
+        outer.addWidget(self.status)
 
         buttons = QtWidgets.QHBoxLayout()
         self.apply_button = QtWidgets.QPushButton("適用")
@@ -1647,7 +1723,7 @@ class SpringMayaDialog(QtWidgets.QDialog):
         self.cancel_button.clicked.connect(self._request_cancel)
         buttons.addWidget(self.apply_button, 1)
         buttons.addWidget(self.cancel_button)
-        root.addLayout(buttons)
+        outer.addLayout(buttons)
 
         for button in self.findChildren(QtWidgets.QPushButton):
             button.setAutoDefault(False)
