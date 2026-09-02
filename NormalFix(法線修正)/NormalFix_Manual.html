@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>NormalFix 説明書 Ver1.0.1</title>
+  <link rel="icon" type="image/png" href="NormalFix.png">
+  <style>
+    :root {
+      --bg: #0b0e13;
+      --panel: #121722;
+      --panel-2: #171e2b;
+      --line: #2a3446;
+      --text: #edf2f8;
+      --muted: #aab5c5;
+      --accent: #6ee7d2;
+      --accent-2: #8bb8ff;
+      --warning: #ffcc66;
+      --danger: #ff7b86;
+      --max: #6cc8ff;
+      --maya: #70e4c1;
+      --blender: #ffad66;
+      --radius: 16px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 0%, rgba(110, 231, 210, .09), transparent 26rem),
+        radial-gradient(circle at 92% 8%, rgba(139, 184, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, system-ui, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--accent-2); }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0c111a;
+      color: #d7e7ff;
+      font-family: Consolas, "SFMono-Regular", monospace;
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 72px 0 42px;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 42px;
+      align-items: center;
+    }
+    .hero-icon {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 24px 34px rgba(0, 0, 0, .4));
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 7vw, 5.4rem);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+    .lead {
+      max-width: 760px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+    .version-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .03);
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .nav-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(42, 52, 70, .9);
+      background: rgba(11, 14, 19, .88);
+      backdrop-filter: blur(14px);
+    }
+    nav {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+    nav a {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    nav a:hover { background: var(--panel-2); color: var(--text); }
+
+    main { padding: 42px 0 80px; }
+    section { scroll-margin-top: 74px; margin-top: 62px; }
+    section:first-child { margin-top: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(1.55rem, 4vw, 2.25rem);
+      letter-spacing: -.035em;
+    }
+    h3 { margin: 0 0 10px; font-size: 1.08rem; }
+    p { margin: 0 0 14px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(255,255,255,.035), transparent), var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .card p:last-child { margin-bottom: 0; }
+    .app-card { position: relative; overflow: hidden; }
+    .app-card::before {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      content: "";
+      background: var(--app-color);
+    }
+    .app-card.max { --app-color: var(--max); }
+    .app-card.maya { --app-color: var(--maya); }
+    .app-card.blender { --app-color: var(--blender); }
+    .app-name { color: var(--app-color); }
+    .download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border: 1px solid color-mix(in srgb, var(--app-color), transparent 45%);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--app-color), transparent 90%);
+      color: var(--text);
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .download:hover { filter: brightness(1.2); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      counter-reset: step;
+    }
+    .flow > div {
+      min-height: 116px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel);
+      counter-increment: step;
+    }
+    .flow > div::before {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      content: "STEP " counter(step, decimal-leading-zero);
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border: 1px solid color-mix(in srgb, var(--warning), transparent 55%);
+      border-left: 4px solid var(--warning);
+      border-radius: 10px;
+      background: rgba(255, 204, 102, .065);
+    }
+    .callout.danger {
+      border-color: color-mix(in srgb, var(--danger), transparent 55%);
+      border-left-color: var(--danger);
+      background: rgba(255, 123, 134, .06);
+    }
+    .callout strong { color: var(--warning); }
+    .callout.danger strong { color: var(--danger); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--panel-2); color: var(--accent); font-size: .88rem; }
+    tr:last-child td { border-bottom: 0; }
+
+    .steps { margin: 0; padding-left: 1.3rem; }
+    .steps li { margin: 7px 0; padding-left: .25rem; }
+    .muted { color: var(--muted); }
+    .kicker { color: var(--accent); font-weight: 800; }
+
+    details {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+    summary {
+      cursor: pointer;
+      padding: 14px 16px;
+      font-weight: 800;
+    }
+    details > div { padding: 0 16px 16px; color: var(--muted); }
+
+    footer {
+      padding: 24px 0 42px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .hero-grid { grid-template-columns: 1fr 132px; gap: 20px; }
+    }
+    @media (max-width: 520px) {
+      .shell { width: min(100% - 22px, 1120px); }
+      .hero { padding-top: 48px; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-icon { width: 116px; }
+      .flow { grid-template-columns: 1fr; }
+      .card { padding: 18px; }
+      th, td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Cross-DCC Normal Utility</p>
+          <h1>NormalFix</h1>
+          <p class="lead">
+            3ds Max・Maya・Blenderで、反転法線やハードサーフェスの不自然な陰影をまとめて補正するツールです。
+            複数メッシュを選択して、同じ考え方で処理できます。
+          </p>
+          <div class="version-row">
+            <span class="badge">Manual Ver1.0.1</span>
+            <span class="badge">標準 35°</span>
+            <span class="badge">ハード 5°</span>
+            <span class="badge">滑らか 90°</span>
+          </div>
+        </div>
+        <img class="hero-icon" src="NormalFix.png" alt="NormalFixアイコン" width="210" height="210">
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="shell" aria-label="ページ内ナビゲーション">
+      <a href="#download">ファイル</a>
+      <a href="#workflow">処理内容</a>
+      <a href="#presets">プリセット</a>
+      <a href="#max">3ds Max</a>
+      <a href="#maya">Maya</a>
+      <a href="#blender">Blender</a>
+      <a href="#trouble">トラブル</a>
+    </nav>
+  </div>
+
+  <main class="shell">
+    <section id="download">
+      <h2>最新版ファイル</h2>
+      <div class="grid">
+        <article class="card app-card max">
+          <h3 class="app-name">3ds Max</h3>
+          <p><code>Ver1.3.4</code></p>
+          <p class="muted">3ds Max 2021以降。2022系のPySide2と新しいPySide6環境を考慮しています。</p>
+          <a class="download" href="NormalFix_MAX.py">NormalFix_MAX.py</a>
+        </article>
+        <article class="card app-card maya">
+          <h3 class="app-name">Maya</h3>
+          <p><code>Ver1.0.2</code></p>
+          <p class="muted">Maya 2025／2026向け。外部ライブラリを使わず、maya.cmdsで動作します。</p>
+          <a class="download" href="NormalFix_Maya.py">NormalFix_Maya.py</a>
+        </article>
+        <article class="card app-card blender">
+          <h3 class="app-name">Blender</h3>
+          <p><code>Ver1.0.2</code></p>
+          <p class="muted">Blender 5.0向け。Nパネルから操作できるスクリプト／アドオン形式です。</p>
+          <a class="download" href="NormalFix_Blender5.py">NormalFix_Blender5.py</a>
+        </article>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>同一フォルダでの管理構成</h3>
+        <p>次の5ファイルを同じフォルダに置いてください。HTML内のリンクとアイコンは相対パスで参照します。</p>
+        <pre><code>NormalFix/
+├─ NormalFix_MAX.py
+├─ NormalFix_Maya.py
+├─ NormalFix_Blender5.py
+├─ NormalFix_Manual.html
+└─ NormalFix.png</code></pre>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <h2>共通の処理順</h2>
+      <div class="flow">
+        <div><strong>自動スムース</strong><br><span class="muted">指定角度を基準に、滑らかに見せる境界を設定します。</span></div>
+        <div><strong>法線リセット</strong><br><span class="muted">読み込みモデルなどの明示的／カスタム法線を解除します。</span></div>
+        <div><strong>面法線統一</strong><br><span class="muted">反転している面を周囲に合わせます。必要な場合だけONにします。</span></div>
+        <div><strong>ウェイト付き法線</strong><br><span class="muted">大きい面やコーナー角度を重視して陰影を整えます。</span></div>
+        <div><strong>最後に確定</strong><br><span class="muted">モディファイア／履歴を確定します。初期状態はONです。</span></div>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <strong>通常は初期設定のままで実行できます。</strong>
+        面の一部が明確に裏返っている場合だけ「面法線の向きを統一／外向きに再計算」をONにしてください。
+      </div>
+    </section>
+
+    <section id="presets">
+      <h2>プリセット</h2>
+      <table>
+        <thead>
+          <tr><th>プリセット</th><th>スムース角度</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>標準</strong></td><td>35°</td><td>迷った場合の基本設定。一般的なプロップや背景モデル向け。</td></tr>
+          <tr><td><strong>ハードサーフェス</strong></td><td>5°</td><td>わずかな角度差もハード境界として残したい機械部品向け。</td></tr>
+          <tr><td><strong>滑らか</strong></td><td>90°</td><td>広い範囲を滑らかにつなぎたい曲面や有機的形状向け。</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="margin-top:12px">
+        角度が小さいほどハードエッジが増え、角度が大きいほど滑らかにつながります。
+      </p>
+    </section>
+
+    <section id="max">
+      <h2><span class="kicker">3ds Max</span> で使う</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>起動</h3>
+          <ol class="steps">
+            <li>英数字だけのパスへスクリプトを置きます。</li>
+            <li>［スクリプト］→［スクリプトを実行］を選びます。</li>
+            <li><code>NormalFix_MAX.py</code>を開きます。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>基本操作</h3>
+          <ol class="steps">
+            <li>対象のジオメトリを複数選択できます。</li>
+            <li>プリセットまたは個別設定を選びます。</li>
+            <li>「選択オブジェクトを補正」を押します。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>確定処理</h3>
+          <p>「最後にモディファイアを集約する」がONの場合、スタック全体をメッシュへ確定します。</p>
+        </div>
+      </div>
+      <div class="callout danger" style="margin-top:16px">
+        <strong>日本語を含むファイルパスに注意。</strong>
+        3ds Max側でUnicodeDecodeErrorが出る場合があります。必ず英数字だけのパスから実行してください。
+      </div>
+    </section>
+
+    <section id="maya">
+      <h2><span class="kicker">Maya 2025／2026</span> で使う</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>起動</h3>
+          <ol class="steps">
+            <li>Script Editorを開きます。</li>
+            <li>Pythonタブへ切り替えます。</li>
+            <li><code>NormalFix_Maya.py</code>を開き、ファイル全体を実行します。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>基本操作</h3>
+          <ol class="steps">
+            <li>ポリゴンメッシュを複数選択します。</li>
+            <li>必要な補正工程を選びます。</li>
+            <li>「選択メッシュを補正」を押します。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>ウェイト方式</h3>
+          <p>Maya標準の<code>vertexNormalMethod</code>を使い、面積・角度・面積＋角度を設定します。</p>
+        </div>
+      </div>
+      <div class="callout danger" style="margin-top:16px">
+        <strong>ヒストリ削除は対象の既存履歴も削除します。</strong>
+        「最後にコンストラクションヒストリを削除する」がONのとき、NormalFix以外の履歴も対象です。
+      </div>
+    </section>
+
+    <section id="blender">
+      <h2><span class="kicker">Blender 5</span> で使う</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>起動</h3>
+          <ol class="steps">
+            <li>［Scripting］ワークスペースを開きます。</li>
+            <li><code>NormalFix_Blender5.py</code>をText Editorで開き、実行します。</li>
+            <li>3Dビューで<code>N</code>キーを押し、「NormalFix」タブを開きます。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>基本操作</h3>
+          <ol class="steps">
+            <li>Object Modeでメッシュを複数選択します。</li>
+            <li>プリセットと工程を設定します。</li>
+            <li>「選択メッシュを補正」を押します。</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>自動スムース</h3>
+          <p>Blender 5の<code>set_sharp_from_angle()</code>を使い、面をスムーズ化して角度からSharp境界を設定します。</p>
+        </div>
+      </div>
+      <div class="callout danger" style="margin-top:16px">
+        <strong>既存モディファイアもすべて適用されます。</strong>
+        「最後にすべてのモディファイアを適用する」がONの場合、NormalFix以外もスタック順に適用します。
+      </div>
+    </section>
+
+    <section id="trouble">
+      <h2>トラブルシューティング</h2>
+      <details open>
+        <summary>補正しても陰影があまり変わらない</summary>
+        <div>
+          明示的／カスタム法線が残っている可能性があります。「既存の法線をリセット」をONにして再実行してください。
+          また、直角面にベベルがまったくないモデルでは、Weighted Normalだけで期待した結果にならない場合があります。
+        </div>
+      </details>
+      <details>
+        <summary>一部の面が黒い、裏からしか見えない</summary>
+        <div>
+          面法線が反転している可能性があります。3ds Max／Mayaでは「面法線の向きを統一」、Blenderでは「面法線を外向きに再計算」をONにします。
+        </div>
+      </details>
+      <details>
+        <summary>ハードエッジが消えてしまう</summary>
+        <div>
+          ハードサーフェスプリセット（5°）を使用してください。Blenderでは「シャープエッジを維持」もONにします。
+        </div>
+      </details>
+      <details>
+        <summary>確定後に補正を削除できない</summary>
+        <div>
+          集約・履歴削除・モディファイア適用後は、処理がメッシュへ確定されています。直後にUndoしてください。
+          調整しながら確認する場合は、最後の確定処理をOFFにして実行します。
+        </div>
+      </details>
+      <details>
+        <summary>複数選択の一部だけ失敗する</summary>
+        <div>
+          編集不可の参照オブジェクト、適用できないモディファイア、特殊なヒストリ、シェイプキーなどが原因になる場合があります。
+          ステータスまたはConsoleに表示されたオブジェクト名を確認し、そのモデルだけ確定処理をOFFにして試してください。
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      NormalFix Manual Ver1.0.1 — NormalFix_MAX.py / NormalFix_Maya.py / NormalFix_Blender5.py
+    </div>
+  </footer>
+</body>
+</html>
