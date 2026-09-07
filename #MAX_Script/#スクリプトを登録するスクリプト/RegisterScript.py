@@ -241,10 +241,6 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
         self.workspace_cuix_path = ""
         self.script_records = {}
         self.toolbar_records = {}
-        self.script_sort_column = "macro"
-        self.script_sort_ascending = True
-        self.toolbar_sort_column = "toolbar"
-        self.toolbar_sort_ascending = True
 
         main_frame = tk.Frame(self)
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -398,21 +394,9 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
             selectmode="extended",
             height=10
         )
-        self.script_tree.heading(
-            "macro",
-            text="スクリプト",
-            command=lambda: self.change_management_sort("script", "macro")
-        )
-        self.script_tree.heading(
-            "category",
-            text="Category",
-            command=lambda: self.change_management_sort("script", "category")
-        )
-        self.script_tree.heading(
-            "toolbar",
-            text="ツールバー",
-            command=lambda: self.change_management_sort("script", "toolbar")
-        )
+        self.script_tree.heading("macro", text="スクリプト")
+        self.script_tree.heading("category", text="Category")
+        self.script_tree.heading("toolbar", text="ツールバー")
         self.script_tree.column("macro", width=145, minwidth=100, anchor=tk.W)
         self.script_tree.column("category", width=100, minwidth=75, anchor=tk.W)
         self.script_tree.column("toolbar", width=125, minwidth=90, anchor=tk.W)
@@ -451,16 +435,8 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
             selectmode="extended",
             height=8
         )
-        self.toolbar_tree.heading(
-            "toolbar",
-            text="ツールバー",
-            command=lambda: self.change_management_sort("toolbar", "toolbar")
-        )
-        self.toolbar_tree.heading(
-            "source",
-            text="登録先",
-            command=lambda: self.change_management_sort("toolbar", "source")
-        )
+        self.toolbar_tree.heading("toolbar", text="ツールバー")
+        self.toolbar_tree.heading("source", text="登録先")
         self.toolbar_tree.column("toolbar", width=235, minwidth=130, anchor=tk.W)
         self.toolbar_tree.column("source", width=115, minwidth=90, anchor=tk.W)
         toolbar_scroll = ttk.Scrollbar(
@@ -488,91 +464,6 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
             anchor="w"
         )
         self.management_status.pack(fill=tk.X, padx=10, pady=(0, 8))
-
-        self.update_management_sort_headers()
-
-    @staticmethod
-    def management_sort_text(value):
-        """一覧の文字列を、大文字小文字を区別しないソートキーへ変換する。"""
-        return str(value or "").casefold()
-
-    @staticmethod
-    def toolbar_source_text(record):
-        """ツールバーの登録先表示を返す。"""
-        sources = record["sources"]
-        return "両方" if len(sources) == 2 else next(iter(sources), "")
-
-    def change_management_sort(self, list_name, column_name):
-        """見出しクリック時に対象列の昇順・降順を切り替える。"""
-        if list_name == "script":
-            if self.script_sort_column == column_name:
-                self.script_sort_ascending = not self.script_sort_ascending
-            else:
-                self.script_sort_column = column_name
-                self.script_sort_ascending = True
-        else:
-            if self.toolbar_sort_column == column_name:
-                self.toolbar_sort_ascending = not self.toolbar_sort_ascending
-            else:
-                self.toolbar_sort_column = column_name
-                self.toolbar_sort_ascending = True
-
-        self.refresh_management_lists()
-
-    def update_management_sort_headers(self):
-        """現在のソート列と方向を一覧見出しへ表示する。"""
-        script_headers = {
-            "macro": "スクリプト",
-            "category": "Category",
-            "toolbar": "ツールバー",
-        }
-        toolbar_headers = {
-            "toolbar": "ツールバー",
-            "source": "登録先",
-        }
-
-        for column_name, header_text in script_headers.items():
-            if self.script_sort_column == column_name:
-                header_text += " ▲" if self.script_sort_ascending else " ▼"
-            self.script_tree.heading(column_name, text=header_text)
-
-        for column_name, header_text in toolbar_headers.items():
-            if self.toolbar_sort_column == column_name:
-                header_text += " ▲" if self.toolbar_sort_ascending else " ▼"
-            self.toolbar_tree.heading(column_name, text=header_text)
-
-    def sort_registered_script_records(self, records):
-        """登録スクリプトを現在選択中の列と方向で並べ替える。"""
-        value_getters = {
-            "macro": lambda record: record["base_name"],
-            "category": lambda record: record["category"],
-            "toolbar": lambda record: record["toolbar"],
-        }
-        value_getter = value_getters[self.script_sort_column]
-        return sorted(
-            records,
-            key=lambda record: (
-                self.management_sort_text(value_getter(record)),
-                self.management_sort_text(record["base_name"]),
-            ),
-            reverse=not self.script_sort_ascending
-        )
-
-    def sort_toolbar_records(self, records):
-        """ツールバーを現在選択中の列と方向で並べ替える。"""
-        value_getters = {
-            "toolbar": lambda record: record["display_name"],
-            "source": self.toolbar_source_text,
-        }
-        value_getter = value_getters[self.toolbar_sort_column]
-        return sorted(
-            records,
-            key=lambda record: (
-                self.management_sort_text(value_getter(record)),
-                self.management_sort_text(record["display_name"]),
-            ),
-            reverse=not self.toolbar_sort_ascending
-        )
 
     def read_macro_text(self, file_path):
         """MacroScriptをUTF-8または日本語Windows環境の文字コードで読み込む。"""
@@ -728,10 +619,7 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
             self.toolbar_tree.delete(item_id)
 
         self.script_records = {}
-        script_records = self.sort_registered_script_records(
-            self.collect_registered_scripts()
-        )
-        for index, record in enumerate(script_records):
+        for index, record in enumerate(self.collect_registered_scripts()):
             item_id = f"script_{index}"
             self.script_records[item_id] = record
             self.script_tree.insert(
@@ -746,13 +634,10 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
             )
 
         self.toolbar_records = {}
-        toolbar_records = self.sort_toolbar_records(
-            self.collect_custom_toolbars()
-        )
-        for index, record in enumerate(toolbar_records):
+        for index, record in enumerate(self.collect_custom_toolbars()):
             item_id = f"toolbar_{index}"
             self.toolbar_records[item_id] = record
-            source_text = self.toolbar_source_text(record)
+            source_text = "両方" if len(record["sources"]) == 2 else next(iter(record["sources"]))
             self.toolbar_tree.insert(
                 "",
                 tk.END,
@@ -763,7 +648,6 @@ class StandaloneMaxInstaller(TkinterDnD.Tk if HAS_DND else tk.Tk):
         self.management_status.config(
             text=f"スクリプト {len(self.script_records)}件 / ツールバー {len(self.toolbar_records)}件"
         )
-        self.update_management_sort_headers()
 
     def update_paths(self, event):
         ver = self.ver_cb.get()
